@@ -51,8 +51,21 @@ def playLevel(level, screen, FPS=60):
          elif event.type == pygame.KEYUP:
             if event.key in keysdown:
                keysdown.remove(event.key)
+         elif event.type == pygame.MOUSEBUTTONUP:
+            pos = pygame.mouse.get_pos()
+            x=pos[0]+cameraX
+            y=pos[1]+cameraY
+            tilex = level.coordToTile(x)
+            tiley = level.coordToTile(y)
+            normx = level.tileToCoord(tilex)
+            normy = level.tileToCoord(tiley)
 
-      
+            print "Coords: x:"+str(x)+", y:"+str(y)          
+            print "Tile: x:"+str(tilex)+", y:"+ str(tiley)
+            print "Norm Coords: x:"+str(normx)+", y:"+str(normy) 
+            print ""
+
+
       # do stuff with keysdown here
       if keyBinding("PAUSE") in keysdown:
          keysdown.remove(keyBinding("PAUSE"))

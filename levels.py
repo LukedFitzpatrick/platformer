@@ -1,6 +1,7 @@
 from gameObject import *
 import pygame
 from graphicsHandler import *
+from objectGenerator import *
 import random
 import math
 
@@ -185,65 +186,41 @@ def generateLevel(levelNumber):
    gameObjects = []
    level = Level()
 
-   
+   oG = ObjectGenerator()
+   oG.loadObjects()
    # hopefully replace this with a level generator print out reader
    if levelNumber == 1:
       level.setDimensions(1024, 480)
-
-
-      # make the player object
-      playerStand = loadFrameset("graphics/stand", 1, 1, 1)
-      playerWalk = loadFrameset("graphics/walk", 1, 3, 4)
-      playerJump = loadFrameset("graphics/jump", 1, 1, 1)
-      playerFall = loadFrameset("graphics/fall", 1, 1, 1)
-
-      playerGraphic = Graphic([playerStand,playerWalk,playerJump,playerFall], 
-                              10, animating=True)
-      playerPlayer = Player()
-      playerObject = GameObject("Player", 100, level.height-100, graphic=playerGraphic,
-                                 player=playerPlayer)
-
-      gameObjects.append(playerObject)
       
-      # make the solid objects
-      floorFrames = loadFrameset("graphics/floor", 1, 1, 1)
+      # make the player object
+      gameObjects.append(oG.get("Player", 100, level.height-100))
+      
+      # boundary floors
       for x in range(0, level.width/16):
-         floorGraphic = Graphic([floorFrames], 10, animating=False)
-         floorObject = GameObject("Floor" + str(x*16), x*16,
-                                  level.height-16, graphic=floorGraphic)
-         gameObjects.append(floorObject)
+         gameObjects.append(oG.get("Floor",x*16,level.height-16))
          level.setCollision(x, level.coordToTile(level.height-16), True)
-
-         floorGraphic = Graphic([floorFrames], 10, animating=False)
-         floorObject = GameObject("Floor" + str(x*16), x*16,
-                                  0, graphic=floorGraphic)
-         gameObjects.append(floorObject)
+         
+         gameObjects.append(oG.get("Floor",x*16,0))
          level.setCollision(x, 0, True)
-
-
-
       
       for y in range(0, level.height/16):
-         floorGraphic = Graphic([floorFrames], 10, animating=False)
-         floorObject = GameObject("Wall", 0,
-                                  y*16, graphic=floorGraphic)
-         gameObjects.append(floorObject)
+         gameObjects.append(oG.get("Floor", 0, y*16))
          level.setCollision(0, y, True)
-
-         floorGraphic = Graphic([floorFrames], 10, animating=False)
-         floorObject = GameObject("Wall", level.width-constant("TILE_SIZE"),
-                                  y*16, graphic=floorGraphic)
-         gameObjects.append(floorObject)
-         level.setCollision(level.coordToTile(level.width-constant("TILE_SIZE")), y, True)
+         gameObjects.append(oG.get("Floor", level.width-16,y*16))
+         level.setCollision(level.coordToTile(level.width-16), y, True)
       
 
+      # level floors
+      startx = 20
+      for y in range(26, 19, -1): 
+         for x in range(startx, startx+4):
+            gameObjects.append(oG.get("Floor", x*16, level.tileToCoord(y)))
+            level.setCollision(x, y, True)
+         
+         startx += 6
 
       # make the exit door
-      doorImage = loadFrameset("graphics/door", 1, 1, 1)
-      doorGraphic = Graphic([doorImage], 9, animating=False)
-      doorObject = GameObject("Exit", level.width-48, level.height-48,
-                              graphic=doorGraphic)
-      gameObjects.append(doorObject)
+      gameObjects.append(oG.get("Exit", level.width-48, level.height-48))
 
 
    level.gameObjects = gameObjects

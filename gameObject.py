@@ -5,11 +5,15 @@ import random
 import math
 
 class GameObject:
-   def __init__(self, debugName, x, y, graphic=None, text=None, player=None):
+   def __init__(self, debugName, x, y, graphic=None, text=None, player=None):     
       self.debugName = debugName
       self.x = x
       self.y = y
       
+
+      # make sure if you add anything here to fix the buggy
+      # copier in objectGenerator.py
+
       if(graphic):
          self.graphic = graphic
          self.graphic.parent = self
@@ -37,6 +41,10 @@ class GameObject:
       
       return (level, keys)
 
+
+   def setCoordinates(self, x, y):
+      self.x = x
+      self.y = y
 
    def getRect(self, cameraX=0, cameraY=0):
       r = pygame.Rect(self.x-cameraX, self.y-cameraY, 
