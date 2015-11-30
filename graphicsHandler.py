@@ -90,7 +90,7 @@ class GraphicsHandler:
         
       background = pygame.Surface(screen.get_size())
       background = background.convert()
-      background.fill((255, 255, 255))
+      background.fill((0, 0, 0))
       screen.blit(background, (0, 0))
 
       # sort the graphics objects by priority: high priority -> drawn last

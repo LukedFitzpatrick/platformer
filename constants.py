@@ -14,6 +14,13 @@ def constant(id):
       return (255, 255, 255)
    elif id == "TILE_SIZE":
       return 16
-
-
-
+   elif id == "PLAYER_ACCELERATION":
+      return 1
+   elif id == "PLAYER_MAX_SPEED":
+      return 8
+   elif id == "GRAVITY":
+      return 0.5
+   elif id == "FRICTION":
+      return 0.6
+   elif id == "JUMP_ACCELERATION":
+      return 10

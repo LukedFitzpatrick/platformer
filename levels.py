@@ -122,10 +122,13 @@ class Level:
       
       if math.fabs(colliderDistance) < math.fabs(deltax):
          xMove = colliderDistance     
-         if xDir == "LEFT": xMove *= -1
-      else: xMove = deltax
+         collided = True
 
-      return xMove
+      else: 
+         xMove = deltax
+         collided = False
+
+      return (collided, xMove)
 
 
    def calculateYCollision(self, collider, deltay):    
@@ -135,7 +138,7 @@ class Level:
       
       # find the horizontal lines we're intersecting
       leftTile = self.coordToTile(collider.get("x"))
-      rightTile = self.coordToTile(collider.get("right"))
+      rightTile = self.coordToTile(collider.get("right"))-1
       linesToCheck = []
       for i in range(leftTile, rightTile+1): linesToCheck.append(i)
 
@@ -166,10 +169,15 @@ class Level:
       
       if math.fabs(colliderDistance) < math.fabs(deltay):
          yMove = colliderDistance     
-         if yDir == "UP": yMove *= -1
-      else: yMove = deltay
+         collided = True
 
-      return yMove
+      else: 
+         yMove = deltay
+         collided = False
+
+      return (collided, yMove)
+
+
 
 
 
@@ -180,15 +188,19 @@ def generateLevel(levelNumber):
    
    # hopefully replace this with a level generator print out reader
    if levelNumber == 1:
-      level.setDimensions(1024, 512)
+      level.setDimensions(1024, 480)
 
 
       # make the player object
       playerStand = loadFrameset("graphics/stand", 1, 1, 1)
       playerWalk = loadFrameset("graphics/walk", 1, 3, 4)
-      playerGraphic = Graphic([playerStand,playerWalk], 10, animating=True)
+      playerJump = loadFrameset("graphics/jump", 1, 1, 1)
+      playerFall = loadFrameset("graphics/fall", 1, 1, 1)
+
+      playerGraphic = Graphic([playerStand,playerWalk,playerJump,playerFall], 
+                              10, animating=True)
       playerPlayer = Player()
-      playerObject = GameObject("Player", level.width-100, level.height-60, graphic=playerGraphic,
+      playerObject = GameObject("Player", 100, level.height-100, graphic=playerGraphic,
                                  player=playerPlayer)
 
       gameObjects.append(playerObject)
@@ -200,8 +212,16 @@ def generateLevel(levelNumber):
          floorObject = GameObject("Floor" + str(x*16), x*16,
                                   level.height-16, graphic=floorGraphic)
          gameObjects.append(floorObject)
-
          level.setCollision(x, level.coordToTile(level.height-16), True)
+
+         floorGraphic = Graphic([floorFrames], 10, animating=False)
+         floorObject = GameObject("Floor" + str(x*16), x*16,
+                                  0, graphic=floorGraphic)
+         gameObjects.append(floorObject)
+         level.setCollision(x, 0, True)
+
+
+
       
       for y in range(0, level.height/16):
          floorGraphic = Graphic([floorFrames], 10, animating=False)
@@ -216,6 +236,14 @@ def generateLevel(levelNumber):
          gameObjects.append(floorObject)
          level.setCollision(level.coordToTile(level.width-constant("TILE_SIZE")), y, True)
       
+
+
+      # make the exit door
+      doorImage = loadFrameset("graphics/door", 1, 1, 1)
+      doorGraphic = Graphic([doorImage], 9, animating=False)
+      doorObject = GameObject("Exit", level.width-48, level.height-48,
+                              graphic=doorGraphic)
+      gameObjects.append(doorObject)
 
 
    level.gameObjects = gameObjects

@@ -23,7 +23,7 @@ def updateCamera(tracking, level, cameraX, cameraY):
 
 
 
-def playLevel(level, screen, FPS=30):
+def playLevel(level, screen, FPS=60):
    keysdown = []
    mainloop = True
    clock = pygame.time.Clock()
@@ -32,9 +32,10 @@ def playLevel(level, screen, FPS=30):
    cameraY = 0
    
    player = level.findObjectByName("Player")
+   exitDoor = level.findObjectByName("Exit")
    gH = GraphicsHandler()
 
-
+   controlsOn = True
    while mainloop:
       milliseconds = clock.tick(FPS)
       if clock.get_fps() < 20:
@@ -45,7 +46,8 @@ def playLevel(level, screen, FPS=30):
             mainloop = False
             sys.exit(1)
          elif event.type == pygame.KEYDOWN:
-            keysdown.append(event.key)
+            if controlsOn:
+               keysdown.append(event.key)
          elif event.type == pygame.KEYUP:
             if event.key in keysdown:
                keysdown.remove(event.key)
@@ -70,5 +72,11 @@ def playLevel(level, screen, FPS=30):
       count = 0
       for o in level.gameObjects:
          (level, keysDown) = o.update(level, keysdown, gH)           
+      
+
+      if exitDoor.getRect().contains(player.getRect()):
+         return 1
+         
+
 
       gH.displayAll(screen, cameraX, cameraY)

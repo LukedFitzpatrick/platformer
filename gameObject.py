@@ -82,8 +82,8 @@ class Graphic:
       gH.registerImage(i, self.parent.x, self.parent.y, 
                     self.priority, self.parent.debugName, self.immovable)
       
-      self.width = self.frameSets[self.frameSetIndex][self.frameIndex].get_width()
-      self.height = self.frameSets[self.frameSetIndex][self.frameIndex].get_height()
+      #self.width = self.frameSets[self.frameSetIndex][self.frameIndex].get_width()
+      #self.height = self.frameSets[self.frameSetIndex][self.frameIndex].get_height()
 
 
    # jump to a certain frame within a frame set
@@ -134,39 +134,126 @@ class Player:
       # for now just use the dimensions of the image as collision BBs
       # later could pass in the dimensions of the BB per frame
       self.collider = Collider()
+      self.mover = Mover()
    
    def update(self, keys, level):
-      # temporary!
+      self.mover.gravity()
+      self.mover.friction()
+
       if keyBinding("LEFT") in keys:
-         self.parent.graphic.continueOrStartFrameSet(1)
-         self.parent.graphic.setFlip("LEFT")
-         deltax = -4
-
-      elif keyBinding("RIGHT") in keys:
-         self.parent.graphic.continueOrStartFrameSet(1)
-         self.parent.graphic.setFlip("RIGHT")
-         deltax = 4
-
-      else:
-         deltax = 0
-         self.parent.graphic.continueOrStartFrameSet(0)
+         self.mover.left()
+      if keyBinding("RIGHT") in keys:
+         self.mover.right()
+      if keyBinding("JUMP") in keys:
+         self.mover.jump()
       
 
       self.collider.setDimensions(self.parent.x, self.parent.y,
             self.parent.graphic.width, self.parent.graphic.height)
 
-      # may have to update the collider in between these two?
-      deltax = level.calculateXCollision(self.collider, deltax)
       
-
-
-      # cheesy gravity
-      deltay = 1
-      deltay = level.calculateYCollision(self.collider, deltay)
-
+      (collidedx, deltax) = level.calculateXCollision(self.collider, 
+                                         self.mover.getDelta("x"))
+      (collidedy, deltay) = level.calculateYCollision(self.collider, 
+                                         self.mover.getDelta("y"))
       
+      if collidedx:
+         self.mover.xCollision()
+      if collidedy:
+         self.mover.yCollision()
+
+
+      # flipping the graphic
+      if deltax > 0:
+         self.parent.graphic.setFlip("RIGHT")
+      elif deltax < 0:
+         self.parent.graphic.setFlip("LEFT")
+
+      # choosing animations
+      # moving in x
+      if math.fabs(deltax) > 0:
+         self.parent.graphic.continueOrStartFrameSet(1)
+      # still in x
+      else:
+         self.parent.graphic.continueOrStartFrameSet(0)
+
+      # falling (takes precedence over walk animation
+      if deltay > 0:
+         self.parent.graphic.continueOrStartFrameSet(3)
+      #rising:
+      elif deltay < 0:
+         self.parent.graphic.continueOrStartFrameSet(2)
+
+
       self.parent.x += deltax
       self.parent.y += deltay
+
+
+class Mover:
+   def __init__(self, xv=0, yv=0, onGround=False):
+      self.xv = xv
+      self.yv = yv
+      self.onGround = onGround
+      
+      
+   def xCollision(self):
+      self.xv = 0
+
+   def yCollision(self):
+      if self.yv > 0:
+         # falling down
+         self.onGround = True
+      self.yv = 0
+      
+
+   def jump(self):
+      if self.onGround:
+         self.yv -= constant("JUMP_ACCELERATION")
+         self.onGround = False
+
+   def right(self):
+      # for now just use a constant, easy to update later
+      if self.xv < 0:
+         self.xv = 0
+
+      else:
+         self.xv += constant("PLAYER_ACCELERATION")
+         if self.xv > constant("PLAYER_MAX_SPEED"):
+            self.xv = constant("PLAYER_MAX_SPEED")
+   
+   def left(self):
+      if self.xv > 0:
+         self.xv = 0
+         
+      else:
+         self.xv -= constant("PLAYER_ACCELERATION")
+         if self.xv < -constant("PLAYER_MAX_SPEED"):
+            self.xv = -constant("PLAYER_MAX_SPEED")
+
+   
+   def gravity(self):
+      self.yv += constant("GRAVITY")
+
+   def friction(self):
+      if self.xv > 0:
+         self.xv -= constant("FRICTION")
+         self.xv = max(self.xv, 0)
+      
+      elif self.xv < 0:
+         self.xv += constant("FRICTION")
+         self.xv = min(self.xv, 0)
+      
+
+   def stop(self):
+      self.xv = 0
+
+   def getDelta(self ,axis):
+      if axis == "x":
+         return self.xv
+      if axis == "y":
+         return self.yv
+   
+
 
 
 class Collider:
