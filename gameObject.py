@@ -5,7 +5,8 @@ import random
 import math
 
 class GameObject:
-   def __init__(self, debugName, x, y, graphic=None, text=None, player=None):     
+   def __init__(self, debugName, x, y, graphic=None, text=None, 
+                player=None, hazard=None):     
       self.debugName = debugName
       self.x = x
       self.y = y
@@ -29,6 +30,11 @@ class GameObject:
          self.text.parent = self
       else:
          self.text = None
+      if(hazard):
+         self.hazard = hazard
+         self.hazard.parent = self
+      else:
+         self.hazard = None
          
    def update(self, level, keys, gH):
 
@@ -38,6 +44,8 @@ class GameObject:
          self.player.update(keys, level)
       if(self.text):
          self.text.update()
+      if(self.hazard):
+         self.hazard.update(level)
       
       return (level, keys)
 
@@ -143,6 +151,7 @@ class Player:
       # later could pass in the dimensions of the BB per frame
       self.collider = Collider()
       self.mover = Mover()
+      self.alive = True
    
    def update(self, keys, level):
       self.mover.gravity()
@@ -195,6 +204,25 @@ class Player:
 
       self.parent.x += deltax
       self.parent.y += deltay
+
+
+   def kill(self):
+      self.alive = False
+
+   def isDead(self):
+      return not self.alive
+
+class Hazard:
+   def __init__(self):
+      pass
+
+   def update(self, level):
+      # later can do different things for different hazards
+
+      player = level.findObjectByName("Player")
+      if player.getRect().colliderect(self.parent.getRect()):
+         player.player.kill()
+         
 
 
 class Mover:

@@ -90,6 +90,7 @@ def playLevel(level, screen, FPS=60):
       if exitDoor.getRect().contains(player.getRect()):
          return 1
          
-
+      if player.player.isDead():
+         return 0
 
       gH.displayAll(screen, cameraX, cameraY)

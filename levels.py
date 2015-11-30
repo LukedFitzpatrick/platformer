@@ -212,12 +212,15 @@ def generateLevel(levelNumber):
 
       # level floors
       startx = 20
-      for y in range(26, 19, -1): 
+      for y in range(26, 19, -2): 
          for x in range(startx, startx+4):
             gameObjects.append(oG.get("Floor", x*16, level.tileToCoord(y)))
             level.setCollision(x, y, True)
-         
-         startx += 6
+         startx += 10
+
+      # spikes
+      for x in range(20, 60):
+         gameObjects.append(oG.get("Spikes", x*16, 448))
 
       # make the exit door
       gameObjects.append(oG.get("Exit", level.width-48, level.height-48))
