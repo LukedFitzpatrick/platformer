@@ -1,0 +1,40 @@
+from gameObject import *
+import pygame
+from graphicsHandler import *
+import random
+
+
+class Level:
+   def __init__(self, gameObjects, width, height):
+      self.gameObjects = gameObjects
+      self.width = width
+      self.height = height   
+
+
+   def findObjectByName(self, name):
+      for o in self.gameObjects:
+         if o.debugName == name:
+            return o
+
+
+
+def generateLevel(levelNumber):
+   gameObjects = []
+   level = Level([], [], 0, 0)
+
+   
+   # hopefully replace this with a level generator print out reader
+   if levelNumber == 1:
+      level.width = 512
+      level.height = 256
+      
+      # make the player object
+      
+      
+   
+
+
+   level.gameObjects = gameObjects
+   return level
+
+   

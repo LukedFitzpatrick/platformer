@@ -1,0 +1,32 @@
+import pygame
+from logging import *
+from graphicsHandler import *
+from menu import *
+from game import *
+from constants import *
+from levels import *
+
+cleanAllLogs()
+
+pygame.mixer.init(frequency=48000)
+pygame.init()
+
+
+
+def playGame(screen):
+   level = 1
+   while(level<2):
+      level += playLevel(generateLevel(level), screen)
+      
+
+screen = pygame.display.set_mode((constant("SCREEN_WIDTH"), 
+                                  constant("SCREEN_HEIGHT")))
+
+
+while True:
+   splashScreen(screen)
+   result = mainMenu(screen)
+   if result == 0: playGame(screen)
+   elif result == 1: settingsMenu(screen)
+   elif result == 2: sys.exit(1)
+
