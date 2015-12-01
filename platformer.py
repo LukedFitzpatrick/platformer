@@ -11,7 +11,7 @@ pygame.init()
 
 def playGame(screen):
    level = 1
-   while(level<2):
+   while generateLevel(level) != None:
       level += playLevel(generateLevel(level), screen)
       
 

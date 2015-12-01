@@ -15,12 +15,14 @@ def constant(id):
    elif id == "TILE_SIZE":
       return 16
    elif id == "PLAYER_ACCELERATION":
-      return 1
+      return 0.5
    elif id == "PLAYER_MAX_SPEED":
-      return 8
+      return 4
    elif id == "GRAVITY":
       return 0.5
    elif id == "FRICTION":
-      return 0.6
+      return 0.3
    elif id == "JUMP_ACCELERATION":
       return 10
+   elif id == "SPIKE_EPSILON":
+      return 100

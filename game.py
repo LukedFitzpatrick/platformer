@@ -32,7 +32,7 @@ def playLevel(level, screen, FPS=60):
    cameraY = 0
    
    player = level.findObjectByName("Player")
-   exitDoor = level.findObjectByName("Exit")
+   #exitDoor = level.findObjectByName("Exit")
    gH = GraphicsHandler()
 
    controlsOn = True
@@ -87,10 +87,14 @@ def playLevel(level, screen, FPS=60):
          (level, keysDown) = o.update(level, keysdown, gH)           
       
 
-      if exitDoor.getRect().contains(player.getRect()):
+     # if exitDoor.getRect().contains(player.getRect()):
+     #    return 1
+     
+
+      if player.x >= level.width:
          return 1
-         
+
       if player.player.isDead():
-         return 0
+          return 0
 
       gH.displayAll(screen, cameraX, cameraY)

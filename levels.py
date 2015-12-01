@@ -30,9 +30,9 @@ class Level:
       self.height = height
       self.collisionMap = []
 
-      for x in range(0, self.width/constant("TILE_SIZE")):
+      for x in range(0, self.width/constant("TILE_SIZE") + 1):
          column = []
-         for y in range(0, self.height/constant("TILE_SIZE")):
+         for y in range(0, self.height/constant("TILE_SIZE") + 1):
             c = CollisionMarker(False)
             column.append(c)
 
@@ -48,7 +48,7 @@ class Level:
          
          print ""
 
-   def setCollision(self, x, y, solid):
+   def setCollision(self, x, y, solid=True):
       self.collisionMap[x][y].setSolid(solid)
 
    def tileToCoord(self, tileNumber):
@@ -190,12 +190,57 @@ def generateLevel(levelNumber):
    oG.loadObjects()
    # hopefully replace this with a level generator print out reader
    if levelNumber == 1:
-      level.setDimensions(1024, 480)
+      level.setDimensions(2048, 480)
       
       # make the player object
-      gameObjects.append(oG.get("Player", 100, level.height-100))
+      gameObjects.append(oG.get("Player", 16, level.height-100))
       
-      # boundary floors
+      # boundary floors/walls
+      for x in range(0, level.width/16):
+         gameObjects.append(oG.get("Floor",x*16,level.height-16))
+         level.setCollision(x, level.coordToTile(level.height-16), True)
+         
+         gameObjects.append(oG.get("Floor",x*16,0))
+         level.setCollision(x, 0, True)
+      
+      for y in range(0, level.height/16):
+         gameObjects.append(oG.get("Floor", 0, y*16))
+         level.setCollision(0, y, True)
+         if y < 10 or y > 17:
+            gameObjects.append(oG.get("Floor", level.width-16,y*16))
+            level.setCollision(level.coordToTile(level.width-16), y, True)
+      
+     
+      gameObjects.append(oG.get("Floor", level.width-32, 22*16))
+      level.setCollision(level.coordToTile(level.width-32), 22, True)
+
+      # level floors
+      for x in range(64, 704, 64):
+         gameObjects.append(oG.get("Platform", x, 224))
+         level.setCollision(level.coordToTile(x), 17)
+         level.setCollision(level.coordToTile(x)+1, 17)
+         level.setCollision(level.coordToTile(x)+2, 17)
+         level.setCollision(level.coordToTile(x)+3, 17)
+
+      for x in range(384, 1984, 64):
+         gameObjects.append(oG.get("Platform",x,352))          
+         level.setCollision(level.coordToTile(x), 25, True)
+         level.setCollision(level.coordToTile(x)+1, 25, True)
+         level.setCollision(level.coordToTile(x)+2, 25, True)
+         level.setCollision(level.coordToTile(x)+3, 25, True)
+
+      
+      for x in range(256, 2000, 18):
+         gameObjects.append(oG.get("FallingSpike", x, 16))
+      
+
+
+   elif levelNumber == 2:
+      level.setDimensions(480, 2048)
+      gameObjects.append(oG.get("Player", 16, level.height-100))
+
+
+
       for x in range(0, level.width/16):
          gameObjects.append(oG.get("Floor",x*16,level.height-16))
          level.setCollision(x, level.coordToTile(level.height-16), True)
@@ -208,22 +253,21 @@ def generateLevel(levelNumber):
          level.setCollision(0, y, True)
          gameObjects.append(oG.get("Floor", level.width-16,y*16))
          level.setCollision(level.coordToTile(level.width-16), y, True)
+
+      for y in range(0, level.height/16-8, 4):
+         gameObjects.append(oG.get("LeftSpike", 16 ,y*16))
+      for y in range(2, level.height/16-2, 4):
+         gameObjects.append(oG.get("RightSpike", level.width-32 ,y*16))
+
+         
+
       
 
-      # level floors
-      startx = 20
-      for y in range(26, 19, -2): 
-         for x in range(startx, startx+4):
-            gameObjects.append(oG.get("Floor", x*16, level.tileToCoord(y)))
-            level.setCollision(x, y, True)
-         startx += 10
+      
 
-      # spikes
-      for x in range(20, 60):
-         gameObjects.append(oG.get("Spikes", x*16, 448))
 
-      # make the exit door
-      gameObjects.append(oG.get("Exit", level.width-48, level.height-48))
+   else:
+      return None
 
 
    level.gameObjects = gameObjects

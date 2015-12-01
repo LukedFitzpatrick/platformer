@@ -54,6 +54,9 @@ class GameObject:
       self.x = x
       self.y = y
 
+   def getCoordinates(self):
+      return (self.x, self.y)
+
    def getRect(self, cameraX=0, cameraY=0):
       r = pygame.Rect(self.x-cameraX, self.y-cameraY, 
                       self.graphic.width, self.graphic.height)
@@ -198,7 +201,7 @@ class Player:
       if deltay > 0:
          self.parent.graphic.continueOrStartFrameSet(3)
       #rising:
-      elif deltay < 0:
+      elif deltay < 0 or not self.mover.onGround:
          self.parent.graphic.continueOrStartFrameSet(2)
 
 
@@ -213,25 +216,72 @@ class Player:
       return not self.alive
 
 class Hazard:
-   def __init__(self):
-      pass
+   def __init__(self, name):
+      self.name = name
+      self.mover = None
+
 
    def update(self, level):
       # later can do different things for different hazards
 
+      # if we touch the player, kill it
       player = level.findObjectByName("Player")
       if player.getRect().colliderect(self.parent.getRect()):
          player.player.kill()
+      
+      elif self.name == "FallingSpike":
+         (px, py) = player.getCoordinates()
+         if math.fabs(int(px)-self.parent.x) <= constant("SPIKE_EPSILON"):
+            if not self.mover:
+               self.mover = Mover()
+               self.collider = Collider()
+
+      elif self.name == "LeftSpike" or self.name == "RightSpike":
+         (px, py) = player.getCoordinates()
+         if math.fabs(int(py)-self.parent.y) <= constant("SPIKE_EPSILON"):
+            if not self.mover:
+               self.mover = Mover()
+               self.collider = Collider()
+               if self.name == "LeftSpike":
+                  self.mover.right(20)
+               elif self.name == "RightSpike":
+                  self.mover.left(20)
+               
+
+
+      # apply physics and collisions if we're doing that
+      if self.mover and self.collider:
+         self.mover.gravity()
+         self.collider.setDimensions(self.parent.x, self.parent.y,
+            self.parent.graphic.width, self.parent.graphic.height)
+      
+         (collidedx, deltax) = level.calculateXCollision(self.collider, 
+                                         self.mover.getDelta("x"))
+         (collidedy, deltay) = level.calculateYCollision(self.collider, 
+                                         self.mover.getDelta("y"))
+      
+         if collidedx:
+            self.mover.xCollision()
+         if collidedy:
+            self.mover.yCollision()
          
+         self.parent.x += deltax
+         self.parent.y += deltay
+
+
+
 
 
 class Mover:
-   def __init__(self, xv=0, yv=0, onGround=False):
+   def __init__(self, xv=0, yv=0, onGround=False,
+                maxSpeed=constant("PLAYER_MAX_SPEED")):
       self.xv = xv
       self.yv = yv
       self.onGround = onGround
+      self.maxSpeed = maxSpeed
       
-      
+   
+
    def xCollision(self):
       self.xv = 0
 
@@ -247,24 +297,23 @@ class Mover:
          self.yv -= constant("JUMP_ACCELERATION")
          self.onGround = False
 
-   def right(self):
-      # for now just use a constant, easy to update later
+   def right(self, v = constant("PLAYER_ACCELERATION")):
       if self.xv < 0:
          self.xv = 0
 
       else:
-         self.xv += constant("PLAYER_ACCELERATION")
-         if self.xv > constant("PLAYER_MAX_SPEED"):
-            self.xv = constant("PLAYER_MAX_SPEED")
+         self.xv += v
+         if self.xv > self.maxSpeed:
+            self.xv = self.maxSpeed
    
-   def left(self):
+   def left(self, v=constant("PLAYER_ACCELERATION")):
       if self.xv > 0:
          self.xv = 0
          
       else:
-         self.xv -= constant("PLAYER_ACCELERATION")
-         if self.xv < -constant("PLAYER_MAX_SPEED"):
-            self.xv = -constant("PLAYER_MAX_SPEED")
+         self.xv -= v
+         if self.xv < -self.maxSpeed:
+            self.xv = -self.maxSpeed
 
    
    def gravity(self):
@@ -289,6 +338,7 @@ class Mover:
       if axis == "y":
          return self.yv
    
+
 
 
 
