@@ -29,29 +29,10 @@ class ObjectGenerator:
       # Floor
       floorFrames = loadFrameset("graphics/floor", 1, 1, 1)
       floorGraphic = Graphic([floorFrames], 10, animating=False)
-      floorObject = GameObject("Floor", -1, -1, graphic=floorGraphic)
+      floorObject = GameObject("Floor", -1, -1,solid=True,
+                               graphic=floorGraphic)
       self.objects["Floor"] = floorObject
 
-      # Roof
-      roofFrames = loadFrameset("graphics/roof", 1, 1, 1)
-      roofGraphic = Graphic([roofFrames], 10, animating=False)
-      roofObject = GameObject("Roof", -1, -1, graphic=roofGraphic)
-      self.objects["Roof"] = roofObject
-
-
-      # Exit Door
-      doorImage = loadFrameset("graphics/door", 1, 1, 1)
-      doorGraphic = Graphic([doorImage], 9, animating=False)
-      doorObject = GameObject("Exit", -1, -1, graphic=doorGraphic)
-      self.objects["Exit"] = doorObject
-
-      # Spikes
-      spikesImage = loadFrameset("graphics/spikes", 1, 1, 1)
-      spikesGraphic = Graphic([spikesImage], 9, animating=False)
-      spikesHazard = Hazard("Spike")
-      spikesObject = GameObject("Spikes", -1, -1, graphic=spikesGraphic,
-                                hazard=spikesHazard)
-      self.objects["Spikes"] = spikesObject
 
       # Falling spike
       fSpikeImage = loadFrameset("graphics/fallingspike", 1, 1, 1)
@@ -89,14 +70,14 @@ class ObjectGenerator:
       # Platform type 1
       platformImage = loadFrameset("graphics/platform", 1, 1, 1)
       platformGraphic = Graphic([platformImage], 10, animating=False)
-      platformObject=GameObject("Platform",-1,-1,graphic=platformGraphic)
+      platformObject=GameObject("Platform",-1,-1,solid=True,graphic=platformGraphic)
       self.objects["Platform"] = platformObject
 
 
       # Platform type 2
       platformImage = loadFrameset("graphics/platformb", 1, 1, 1)
       platformGraphic = Graphic([platformImage], 10, animating=False)
-      platformObject=GameObject("Platformb",-1,-1,graphic=platformGraphic)
+      platformObject=GameObject("Platformb",-1,-1,solid=True,graphic=platformGraphic)
       self.objects["Platformb"] = platformObject
 
       
@@ -105,7 +86,7 @@ class ObjectGenerator:
    def get(self, name, x, y):
       # bug with deepcopying surfaces means I have to do it manually
       o = self.objects[name]
-      target = GameObject(name, x, y, 
+      target = GameObject(name, x, y, o.solid, 
                           graphic=copy.copy(o.graphic),
                           text=copy.copy(o.text), 
                           player=copy.copy(o.player),

@@ -32,7 +32,9 @@ class GraphicsObject:
       # todo add camera to these types, for now assume they're immovable
       elif self.type == "rect":
          # in this case, rep is a RectangleWrapper
-         pygame.draw.rect(screen, self.rep.colour, self.rep.rect, self.rep.thickness)
+         pygame.draw.rect(screen, self.rep.colour, 
+                          self.rep.getRect(camerax, cameray), 
+                          self.rep.thickness)
       elif self.type == "text":
          # the rep is a TextWrapper
          label = self.rep.thefont.render(self.rep.text, False, self.rep.colour)
@@ -52,9 +54,18 @@ class TextWrapper:
 
 class RectangleWrapper:
    def __init__(self, colour, thickness, left, top, width, height):
-      self.rect = pygame.Rect(left, top, width, height)
+      self.left = left
+      self.top = top
+      self.width = width
+      self.height = height
       self.colour = colour
       self.thickness = thickness
+
+   def getRect(self, cameraX=0, cameraY=0):
+      rect = pygame.Rect(self.left-cameraX, self.top-cameraY,
+                              self.width, self.height)
+      return rect
+   
                          
 class GraphicsHandler:
    def __init__(self):

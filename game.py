@@ -39,7 +39,7 @@ def playLevel(level, screen, FPS=60):
 
       milliseconds = clock.tick(FPS)
       if clock.get_fps() < 20:
-         #print "FPS DROP: " + str(clock.get_fps())
+         print "FPS DROP: " + str(clock.get_fps())
          pass
 
       for event in pygame.event.get():
@@ -96,16 +96,14 @@ def playLevel(level, screen, FPS=60):
       count = 0
       for o in level.gameObjects:
          (level, keysDown) = o.update(level, keysdown, gH)           
-      
-
-     # if exitDoor.getRect().contains(player.getRect()):
-     #    return 1
-     
+          
 
       if player.x >= level.width:
          return 1
 
       if player.player.isDead():
-          return 0
+          level.restartLevel(keepPosition=False)
 
+      level.displayCollisionMap(gH)
+      
       gH.displayAll(screen, cameraX, cameraY)

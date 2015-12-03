@@ -5,8 +5,9 @@ import random
 import math
 
 class GameObject:
-   def __init__(self, debugName, x, y, graphic=None, text=None, 
+   def __init__(self, debugName, x, y,solid=False, graphic=None, text=None, 
                 player=None, hazard=None):     
+      self.solid = solid
       self.debugName = debugName
       self.x = x
       self.y = y
@@ -36,6 +37,10 @@ class GameObject:
       else:
          self.hazard = None
          
+
+   def isSolid(self):
+      return self.solid
+
    def update(self, level, keys, gH):
 
       if(self.graphic):

@@ -49,8 +49,9 @@ class Level:
 
 
    def undoDeleteLevelLine(self):
-      self.addLevelLine(self.deletedLines.pop())
-      self.restartLevel()
+      if len(self.deletedLines) > 0:
+         self.addLevelLine(self.deletedLines.pop())
+         self.restartLevel()
       
    def deleteLevelLine(self, lineIndex):
       self.deletedLines.append(self.levelLines[lineIndex])
@@ -66,6 +67,18 @@ class Level:
    def getLevelLine(self, index):
       return self.levelLines[index]
 
+   def resetCollisionMap(self):
+      self.collisionMap = []
+      for x in range(0, self.width/constant("TILE_SIZE") + 5):
+         column = []
+         for y in range(0, self.height/constant("TILE_SIZE") + 5):
+            c = CollisionMarker(False)
+            column.append(c)
+
+         self.collisionMap.append(column)
+
+
+
    def setDimensions(self, width, height):
       self.width = width
       self.height = height
@@ -79,15 +92,16 @@ class Level:
 
          self.collisionMap.append(column)
          
-   def displayCollisionMap(self):
+   def displayCollisionMap(self, gH):
       for y in range(0, self.height/constant("TILE_SIZE")):
          for x in range(0, self.width/constant("TILE_SIZE")):
             if self.collisionMap[x][y].solid:
-               print "#",
+               #print "#",
+               s = constant("TILE_SIZE")
+               gH.registerRect((255, 0, 0), 1, x*s,y*s,s,s,15,"collide")
             else:
-               print ".",
-         
-         print ""
+               pass#print ".",
+            
 
    def setCollision(self, x, y, solid=True):
       self.collisionMap[x][y].setSolid(solid)
@@ -223,33 +237,8 @@ class Level:
 
    def interpretLevelLine(self, c, oG):
       if len(c) > 0 and c[0] != "width" and c[0] != "height":
-      # this is setting up a collision zone
-         if "Collision" in c[0]:
-            if "range" in c[1]:
-               xrange = c[1].split(' ')
-               startx = self.coordToTile(int(xrange[1]))
-               endx = self.coordToTile(int(xrange[2])) + 1
-               jumpx = int(xrange[3]) / constant("TILE_SIZE")
-            else:
-               startx = self.coordToTile(int(c[1]))
-               # needs to be plus one because of Python's range strangeness
-               endx = self.coordToTile(int(c[1])) +1
-               jumpx = 1
-            if "range" in c[2]:
-               yrange = c[2].split(' ')
-               starty = self.coordToTile(int(yrange[1]))
-               endy = self.coordToTile(int(yrange[2])) + 1
-               jumpy = int(yrange[3]) / constant("TILE_SIZE")
-            else:
-               starty = self.coordToTile(int(c[2]))
-               endy = self.coordToTile(int(c[2])) + 1
-               jumpy = 1
-
-            for x in range(startx, endx, jumpx):
-               for y in range(starty, endy, jumpy):
-                  self.setCollision(x, y, True)
-
-         
+         if False:
+            pass
          # making an object
          else:
             if "range" in c[1]:
@@ -278,7 +267,13 @@ class Level:
                   o = oG.get(str(c[0]), x, y)
                   o.setLevelLineIndex(self.getLevelLineIndex())
                   self.gameObjects.append(o)
-                  
+                  if o.isSolid():
+                     s = constant("TILE_SIZE")
+                     coly = y + (o.graphic.height - s)
+                     for colx in range(x, x+(o.graphic.width), s):
+                        self.setCollision(self.coordToTile(colx), 
+                                          self.coordToTile(coly), True)
+
       
       self.addLevelLine(c)
 
@@ -329,6 +324,23 @@ class Level:
                   f.write(',')
                f.write('\n')
 
+
+   def deleteInPlace(self, x, y):
+      for o in self.gameObjects:
+         if o.getRect().collidepoint(x, y):
+            print "Deleted this:"
+            print self.getLevelLine(o.getLevelLineIndex())
+            self.deleteLevelLine(o.getLevelLineIndex())
+            
+            # now we also have to delete the collision
+            
+            self.restartLevel()
+
+
+   def addInPlace(self, x, y):
+      print "yo"
+
+               
    def dealWithClick(self, pos, cameraX, cameraY):
       x=pos[0]+cameraX
       y=pos[1]+cameraY
@@ -345,22 +357,21 @@ class Level:
       mode = self.getEditMode()
       if constant("EDIT_ON"):
          if mode == constant("EDIT_DELETE"):
-            for o in self.gameObjects:
-               if o.getRect().collidepoint(x, y):
-                  print "Deleted this:"
-                  print self.getLevelLine(o.getLevelLineIndex())
-                  self.deleteLevelLine(o.getLevelLineIndex())
-                  self.restartLevel()
+            self.deleteInPlace(x, y)
          
          elif mode == constant("EDIT_ADD"):
-            print "Add something here"
+            self.addInPlace(pos)
 
-   def restartLevel(self):
+
+   def restartLevel(self, keepPosition=True):
       oG = ObjectGenerator()
       oG.loadObjects()
-      player = self.findObjectByName("Player")
+      if keepPosition:
+         player = self.findObjectByName("Player")
+      else:
+         player = None
+      self.resetCollisionMap()
       self.gameObjects = []
-      print player
       self.readLevelFromFile(self.levelNumber, oG, 
                              reload=True, staticplayer=player)
       
