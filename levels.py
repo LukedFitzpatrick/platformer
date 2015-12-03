@@ -24,15 +24,56 @@ class Level:
       self.width = 0
       self.height = 0
       self.collisionMap = []
+      self.levelLines = []
+      self.deletedLines = []
+      self.levelLineIndex = 0
+      self.levelNumber = -1
+      self.editMode = constant("EDIT_NONE")
       
+
+   def setEditMode(self, editMode):
+      self.editMode = editMode
+            
+   def getEditMode(self):
+      return self.editMode
+
+      
+   def addLevelLine(self, line):
+      self.levelLines.append(line)
+      self.levelLineIndex += 1
+
+
+   def clearLevelLines(self):
+      self.levelLines = []
+      self.levelLineIndex = 0
+
+
+   def undoDeleteLevelLine(self):
+      self.addLevelLine(self.deletedLines.pop())
+      self.restartLevel()
+      
+   def deleteLevelLine(self, lineIndex):
+      self.deletedLines.append(self.levelLines[lineIndex])
+      self.levelLines[lineIndex] = ""
+      
+      
+   def getLevelLineIndex(self):
+      return self.levelLineIndex
+
+   def getAllLevelLines(self):
+      return self.levelLines
+
+   def getLevelLine(self, index):
+      return self.levelLines[index]
+
    def setDimensions(self, width, height):
       self.width = width
       self.height = height
       self.collisionMap = []
 
-      for x in range(0, self.width/constant("TILE_SIZE") + 1):
+      for x in range(0, self.width/constant("TILE_SIZE") + 5):
          column = []
-         for y in range(0, self.height/constant("TILE_SIZE") + 1):
+         for y in range(0, self.height/constant("TILE_SIZE") + 5):
             c = CollisionMarker(False)
             column.append(c)
 
@@ -95,7 +136,8 @@ class Level:
       topTile = self.coordToTile(collider.get("y"))
       bottomTile = self.coordToTile(collider.get("bottom"))-1
       linesToCheck = []
-      for i in range(topTile, bottomTile+1): linesToCheck.append(i)
+      for i in range(topTile, bottomTile+1): 
+         linesToCheck.append(i)
 
       # find the closest obstacle in the collision map
       if xDir == "LEFT": increment = -1
@@ -179,98 +221,159 @@ class Level:
       return (collided, yMove)
 
 
+   def interpretLevelLine(self, c, oG):
+      if len(c) > 0 and c[0] != "width" and c[0] != "height":
+      # this is setting up a collision zone
+         if "Collision" in c[0]:
+            if "range" in c[1]:
+               xrange = c[1].split(' ')
+               startx = self.coordToTile(int(xrange[1]))
+               endx = self.coordToTile(int(xrange[2])) + 1
+               jumpx = int(xrange[3]) / constant("TILE_SIZE")
+            else:
+               startx = self.coordToTile(int(c[1]))
+               # needs to be plus one because of Python's range strangeness
+               endx = self.coordToTile(int(c[1])) +1
+               jumpx = 1
+            if "range" in c[2]:
+               yrange = c[2].split(' ')
+               starty = self.coordToTile(int(yrange[1]))
+               endy = self.coordToTile(int(yrange[2])) + 1
+               jumpy = int(yrange[3]) / constant("TILE_SIZE")
+            else:
+               starty = self.coordToTile(int(c[2]))
+               endy = self.coordToTile(int(c[2])) + 1
+               jumpy = 1
 
+            for x in range(startx, endx, jumpx):
+               for y in range(starty, endy, jumpy):
+                  self.setCollision(x, y, True)
+
+         
+         # making an object
+         else:
+            if "range" in c[1]:
+               xrange = c[1].split(' ')
+               startx = int(xrange[1])
+               endx = int(xrange[2]) + 1
+               jumpx = int(xrange[3])
+            else:
+               startx = int(c[1])
+               # needs to be plus one because of Python's range strangeness
+               endx = int(c[1]) + 1
+               jumpx = 1
+
+            if "range" in c[2]:
+               yrange = c[2].split(' ')
+               starty = int(yrange[1])
+               endy = int(yrange[2]) + 1
+               jumpy = int(yrange[3])
+            else:
+               starty = int(c[2])
+               endy = int(c[2]) + 1
+               jumpy = 1
+            
+            for x in range(startx, endx, jumpx):
+               for y in range(starty, endy, jumpy):
+                  o = oG.get(str(c[0]), x, y)
+                  o.setLevelLineIndex(self.getLevelLineIndex())
+                  self.gameObjects.append(o)
+                  
+      
+      self.addLevelLine(c)
+
+
+   def readLevelFromFile(self, levelNumber, oG, 
+                         reload=False, staticplayer=None):
+      self.levelNumber = levelNumber
+      
+      
+      if reload:
+         commands = self.getAllLevelLines()
+         self.clearLevelLines()
+      else:
+         with open("levels/level"  + str(levelNumber) +".txt") as f:
+            lines = f.readlines()
+
+         commands = []
+         for l in lines:
+            if l[0] != '#':
+               l = l.split(',')
+               c = []
+               for x in l: 
+                  x=x.rstrip()
+                  c.append(x)
+               if len(c) > 1:
+                  commands.append(c)
+      
+
+         # the first and second line should be the width and height
+         self.setDimensions(int(commands[0][1]), int(commands[1][1]))
+   
+      self.gameObjects = []
+      for c in commands:
+         self.interpretLevelLine(c, oG)
+      
+
+      if staticplayer:
+         p = self.findObjectByName("Player") 
+         p.x = staticplayer.x
+         p.y = staticplayer.y
+
+   def writeLevelToFile(self):
+      with open("levels/level"  + str(self.levelNumber) +".txt", "w") as f:
+         for l in self.getAllLevelLines():
+            if len(l) > 1:
+               for p in l:
+                  f.write(p)
+                  f.write(',')
+               f.write('\n')
+
+   def dealWithClick(self, pos, cameraX, cameraY):
+      x=pos[0]+cameraX
+      y=pos[1]+cameraY
+      tilex = self.coordToTile(x)
+      tiley = self.coordToTile(y)
+      normx = self.tileToCoord(tilex)
+      normy = self.tileToCoord(tiley)
+
+      #print "Coords: x:"+str(x)+", y:"+str(y)          
+      #print "Tile: x:"+str(tilex)+", y:"+ str(tiley)
+      #print "Norm Coords: x:"+str(normx)+", y:"+str(normy) 
+      #print ""
+
+      mode = self.getEditMode()
+      if constant("EDIT_ON"):
+         if mode == constant("EDIT_DELETE"):
+            for o in self.gameObjects:
+               if o.getRect().collidepoint(x, y):
+                  print "Deleted this:"
+                  print self.getLevelLine(o.getLevelLineIndex())
+                  self.deleteLevelLine(o.getLevelLineIndex())
+                  self.restartLevel()
+         
+         elif mode == constant("EDIT_ADD"):
+            print "Add something here"
+
+   def restartLevel(self):
+      oG = ObjectGenerator()
+      oG.loadObjects()
+      player = self.findObjectByName("Player")
+      self.gameObjects = []
+      print player
+      self.readLevelFromFile(self.levelNumber, oG, 
+                             reload=True, staticplayer=player)
+      
 
 
 def generateLevel(levelNumber):
    gameObjects = []
    level = Level()
-
    oG = ObjectGenerator()
    oG.loadObjects()
-   # hopefully replace this with a level generator print out reader
-   if levelNumber == 1:
-      level.setDimensions(2048, 480)
-      
-      # make the player object
-      gameObjects.append(oG.get("Player", 16, level.height-100))
-      
-      # boundary floors/walls
-      for x in range(0, level.width/16):
-         gameObjects.append(oG.get("Floor",x*16,level.height-16))
-         level.setCollision(x, level.coordToTile(level.height-16), True)
-         
-         gameObjects.append(oG.get("Floor",x*16,0))
-         level.setCollision(x, 0, True)
-      
-      for y in range(0, level.height/16):
-         gameObjects.append(oG.get("Floor", 0, y*16))
-         level.setCollision(0, y, True)
-         if y < 10 or y > 17:
-            gameObjects.append(oG.get("Floor", level.width-16,y*16))
-            level.setCollision(level.coordToTile(level.width-16), y, True)
-      
-     
-      gameObjects.append(oG.get("Floor", level.width-32, 22*16))
-      level.setCollision(level.coordToTile(level.width-32), 22, True)
 
-      # level floors
-      for x in range(64, 704, 64):
-         gameObjects.append(oG.get("Platform", x, 224))
-         level.setCollision(level.coordToTile(x), 17)
-         level.setCollision(level.coordToTile(x)+1, 17)
-         level.setCollision(level.coordToTile(x)+2, 17)
-         level.setCollision(level.coordToTile(x)+3, 17)
-
-      for x in range(384, 1984, 64):
-         gameObjects.append(oG.get("Platform",x,352))          
-         level.setCollision(level.coordToTile(x), 25, True)
-         level.setCollision(level.coordToTile(x)+1, 25, True)
-         level.setCollision(level.coordToTile(x)+2, 25, True)
-         level.setCollision(level.coordToTile(x)+3, 25, True)
-
-      
-      for x in range(256, 2000, 18):
-         gameObjects.append(oG.get("FallingSpike", x, 16))
-      
-
-
-   elif levelNumber == 2:
-      level.setDimensions(480, 2048)
-      gameObjects.append(oG.get("Player", 16, level.height-100))
-
-
-
-      for x in range(0, level.width/16):
-         gameObjects.append(oG.get("Floor",x*16,level.height-16))
-         level.setCollision(x, level.coordToTile(level.height-16), True)
-         
-         gameObjects.append(oG.get("Floor",x*16,0))
-         level.setCollision(x, 0, True)
-      
-      for y in range(0, level.height/16):
-         gameObjects.append(oG.get("Floor", 0, y*16))
-         level.setCollision(0, y, True)
-         gameObjects.append(oG.get("Floor", level.width-16,y*16))
-         level.setCollision(level.coordToTile(level.width-16), y, True)
-
-      for y in range(0, level.height/16-8, 4):
-         gameObjects.append(oG.get("LeftSpike", 16 ,y*16))
-      for y in range(2, level.height/16-2, 4):
-         gameObjects.append(oG.get("RightSpike", level.width-32 ,y*16))
-
-         
-
-      
-
-      
-
-
-   else:
-      return None
-
-
-   level.gameObjects = gameObjects
+   level.readLevelFromFile(levelNumber, oG)
+   
    return level
 
    

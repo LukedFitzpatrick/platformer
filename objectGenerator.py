@@ -62,6 +62,14 @@ class ObjectGenerator:
       self.objects["FallingSpike"] = fSpikeObject
       
       
+      # Rising spike
+      rSpikeImage = loadFrameset("graphics/risingspike", 1, 1, 1)
+      rSpikeGraphic = Graphic([rSpikeImage], 0, animating=False)
+      rSpikeHazard = Hazard("RisingSpike")
+      rSpikeObject = GameObject("RisingSpike", -1, -1,
+                     graphic=rSpikeGraphic, hazard=rSpikeHazard)
+      self.objects["RisingSpike"] = rSpikeObject
+
       # left and right shooting spikes
       lSpikeImage = loadFrameset("graphics/leftspike", 1, 1, 1)
       lSpikeGraphic = Graphic([lSpikeImage], 9, animating=False)
@@ -77,14 +85,22 @@ class ObjectGenerator:
                      graphic=rSpikeGraphic, hazard=rSpikeHazard)
       self.objects["RightSpike"] = rSpikeObject
 
-
-
-
-      # Platform
+      
+      # Platform type 1
       platformImage = loadFrameset("graphics/platform", 1, 1, 1)
       platformGraphic = Graphic([platformImage], 10, animating=False)
       platformObject=GameObject("Platform",-1,-1,graphic=platformGraphic)
       self.objects["Platform"] = platformObject
+
+
+      # Platform type 2
+      platformImage = loadFrameset("graphics/platformb", 1, 1, 1)
+      platformGraphic = Graphic([platformImage], 10, animating=False)
+      platformObject=GameObject("Platformb",-1,-1,graphic=platformGraphic)
+      self.objects["Platformb"] = platformObject
+
+      
+
 
    def get(self, name, x, y):
       # bug with deepcopying surfaces means I have to do it manually

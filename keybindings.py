@@ -13,6 +13,18 @@ def keyBinding(keyid):
       return pygame.K_n
    elif keyid == "PREVIOUS_LEVEL":
       return pygame.K_b
+   elif keyid == "RELOAD_LEVEL":
+      return pygame.K_r
+   elif keyid == "WRITE_LEVEL":
+      return pygame.K_f
+   elif keyid == "EDIT_DELETE":
+      return pygame.K_q
+   elif keyid == "EDIT_CANCEL":
+      return pygame.K_ESCAPE
+   elif keyid == "EDIT_ADD":
+      return pygame.K_e
+   elif keyid == "EDIT_UNDO":
+      return pygame.K_z
    elif keyid == "RIGHT":
       return pygame.K_d
    elif keyid == "LEFT":

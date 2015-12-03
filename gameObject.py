@@ -10,7 +10,7 @@ class GameObject:
       self.debugName = debugName
       self.x = x
       self.y = y
-      
+      self.levelLineIndex = -1
 
       # make sure if you add anything here to fix the buggy
       # copier in objectGenerator.py
@@ -49,6 +49,12 @@ class GameObject:
       
       return (level, keys)
 
+
+   def setLevelLineIndex(self, index):
+      self.levelLineIndex = index
+
+   def getLevelLineIndex(self):
+      return self.levelLineIndex
 
    def setCoordinates(self, x, y):
       self.x = x
@@ -229,23 +235,29 @@ class Hazard:
       if player.getRect().colliderect(self.parent.getRect()):
          player.player.kill()
       
-      elif self.name == "FallingSpike":
+      elif self.name == "FallingSpike" or self.name == "RisingSpike":
          (px, py) = player.getCoordinates()
          if math.fabs(int(px)-self.parent.x) <= constant("SPIKE_EPSILON"):
-            if not self.mover:
+            #if not self.mover:
+            if True:
                self.mover = Mover()
                self.collider = Collider()
+               if self.name == "RisingSpike":
+                  self.mover.up(constant("SPIKE_SPEED"))
+               if self.name == "FallingSpike":
+                  self.mover.down(constant("SPIKE_SPEED"))
 
       elif self.name == "LeftSpike" or self.name == "RightSpike":
          (px, py) = player.getCoordinates()
          if math.fabs(int(py)-self.parent.y) <= constant("SPIKE_EPSILON"):
-            if not self.mover:
+            #if not self.mover:
+            if True:
                self.mover = Mover()
                self.collider = Collider()
                if self.name == "LeftSpike":
-                  self.mover.right(20)
+                  self.mover.right(constant("SPIKE_SPEED"))
                elif self.name == "RightSpike":
-                  self.mover.left(20)
+                  self.mover.left(constant("SPIKE_SPEED"))
                
 
 
@@ -315,6 +327,11 @@ class Mover:
          if self.xv < -self.maxSpeed:
             self.xv = -self.maxSpeed
 
+   def up(self, v):
+      self.yv -= v
+   
+   def down(self, v):
+      self.yv += v
    
    def gravity(self):
       self.yv += constant("GRAVITY")
@@ -365,7 +382,7 @@ class Collider:
       if what == "height":
          return self.height
       if what == "right":
-         return self.x+self.width
+         return self.x+(self.width)
       if what == "bottom":
          return self.y+self.height
 

@@ -31,16 +31,17 @@ def playLevel(level, screen, FPS=60):
    cameraX = 0
    cameraY = 0
    
-   player = level.findObjectByName("Player")
-   #exitDoor = level.findObjectByName("Exit")
    gH = GraphicsHandler()
 
    controlsOn = True
    while mainloop:
+      player = level.findObjectByName("Player")
+
       milliseconds = clock.tick(FPS)
       if clock.get_fps() < 20:
-         print "FPS DROP: " + str(clock.get_fps())
-   
+         #print "FPS DROP: " + str(clock.get_fps())
+         pass
+
       for event in pygame.event.get():
          if event.type == pygame.QUIT:
             mainloop = False
@@ -53,17 +54,7 @@ def playLevel(level, screen, FPS=60):
                keysdown.remove(event.key)
          elif event.type == pygame.MOUSEBUTTONUP:
             pos = pygame.mouse.get_pos()
-            x=pos[0]+cameraX
-            y=pos[1]+cameraY
-            tilex = level.coordToTile(x)
-            tiley = level.coordToTile(y)
-            normx = level.tileToCoord(tilex)
-            normy = level.tileToCoord(tiley)
-
-            print "Coords: x:"+str(x)+", y:"+str(y)          
-            print "Tile: x:"+str(tilex)+", y:"+ str(tiley)
-            print "Norm Coords: x:"+str(normx)+", y:"+str(normy) 
-            print ""
+            level.dealWithClick(pos, cameraX, cameraY)
 
 
       # do stuff with keysdown here
@@ -77,6 +68,26 @@ def playLevel(level, screen, FPS=60):
       if keyBinding("PREVIOUS_LEVEL") in keysdown:
          keysdown.remove(keyBinding("PREVIOUS_LEVEL"))
          return -1
+      if keyBinding("RELOAD_LEVEL") in keysdown:
+         keysdown.remove(keyBinding("RELOAD_LEVEL"))
+         level.restartLevel()
+         player = level.findObjectByName("Player")
+
+      if keyBinding("WRITE_LEVEL") in keysdown:
+         keysdown.remove(keyBinding("WRITE_LEVEL"))
+         level.writeLevelToFile()
+      if keyBinding("EDIT_DELETE") in keysdown:
+         keysdown.remove(keyBinding("EDIT_DELETE"))
+         level.setEditMode(constant("EDIT_DELETE"))
+      if keyBinding("EDIT_ADD") in keysdown:
+         keysdown.remove(keyBinding("EDIT_ADD"))
+         level.setEditMode(constant("EDIT_ADD"))
+      if keyBinding("EDIT_CANCEL") in keysdown:
+         keysdown.remove(keyBinding("EDIT_CANCEL"))
+         level.setEditMode(constant("EDIT_NONE"))
+      if keyBinding("EDIT_UNDO") in keysdown:
+         keysdown.remove(keyBinding("EDIT_UNDO"))
+         level.undoDeleteLevelLine()
      
      
       (cameraX, cameraY) = updateCamera(player, level, cameraX, cameraY)

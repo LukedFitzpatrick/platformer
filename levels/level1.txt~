@@ -1,0 +1,8 @@
+width, 2648
+height, 480
+
+Player, 16, 380
+Floor, range 0 2648 16, 0
+Floor, range 0 2648 16, 464
+
+ 
