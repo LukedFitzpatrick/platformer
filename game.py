@@ -64,30 +64,45 @@ def playLevel(level, screen, FPS=60):
          keysdown = []
       if keyBinding("NEXT_LEVEL") in keysdown:
          keysdown.remove(keyBinding("NEXT_LEVEL"))
+         dprint("Next level!")
          return 1
+
       if keyBinding("PREVIOUS_LEVEL") in keysdown:
          keysdown.remove(keyBinding("PREVIOUS_LEVEL"))
+         dprint("Previous level!")
          return -1
+
+
       if keyBinding("RELOAD_LEVEL") in keysdown:
          keysdown.remove(keyBinding("RELOAD_LEVEL"))
          level.restartLevel()
          player = level.findObjectByName("Player")
+         dprint("Restarted level!")
 
       if keyBinding("WRITE_LEVEL") in keysdown:
          keysdown.remove(keyBinding("WRITE_LEVEL"))
          level.writeLevelToFile()
+         dprint("Wrote level!")
+      
       if keyBinding("EDIT_DELETE") in keysdown:
          keysdown.remove(keyBinding("EDIT_DELETE"))
          level.setEditMode(constant("EDIT_DELETE"))
+         dprint("Click to delete!")
+
       if keyBinding("EDIT_ADD") in keysdown:
          keysdown.remove(keyBinding("EDIT_ADD"))
          level.setEditMode(constant("EDIT_ADD"))
+         dprint("Click to add!")
+         
       if keyBinding("EDIT_CANCEL") in keysdown:
          keysdown.remove(keyBinding("EDIT_CANCEL"))
          level.setEditMode(constant("EDIT_NONE"))
+         dprint("Edit cancelled!")
+
       if keyBinding("EDIT_UNDO") in keysdown:
          keysdown.remove(keyBinding("EDIT_UNDO"))
          level.undoDeleteLevelLine()
+         dprint("Edit undone!")
      
      
       (cameraX, cameraY) = updateCamera(player, level, cameraX, cameraY)

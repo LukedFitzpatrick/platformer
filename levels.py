@@ -247,6 +247,7 @@ class Level:
                endx = int(xrange[2]) + 1
                jumpx = int(xrange[3])
             else:
+               print c
                startx = int(c[1])
                # needs to be plus one because of Python's range strangeness
                endx = int(c[1]) + 1
@@ -336,9 +337,16 @@ class Level:
             
             self.restartLevel()
 
+   def getTileToAdd(self):
+      return 'Floor'
 
-   def addInPlace(self, x, y):
-      print "yo"
+
+   def addInPlace(self, normx, normy):
+      
+      line = ["Floor", str(normx), str(normy)]
+      self.addLevelLine(line)
+      self.restartLevel()
+
 
                
    def dealWithClick(self, pos, cameraX, cameraY):
@@ -360,7 +368,7 @@ class Level:
             self.deleteInPlace(x, y)
          
          elif mode == constant("EDIT_ADD"):
-            self.addInPlace(pos)
+            self.addInPlace(normx, normy)
 
 
    def restartLevel(self, keepPosition=True):
