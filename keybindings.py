@@ -25,6 +25,8 @@ def keyBinding(keyid):
       return pygame.K_e
    elif keyid == "EDIT_UNDO":
       return pygame.K_z
+   elif keyid == "CHANGE_ADD_TILE":
+      return pygame.K_c
    elif keyid == "RIGHT":
       return pygame.K_d
    elif keyid == "LEFT":

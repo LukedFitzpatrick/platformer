@@ -103,6 +103,11 @@ def playLevel(level, screen, FPS=60):
          keysdown.remove(keyBinding("EDIT_UNDO"))
          level.undoDeleteLevelLine()
          dprint("Edit undone!")
+
+      if keyBinding("CHANGE_ADD_TILE") in keysdown:
+         keysdown.remove(keyBinding("CHANGE_ADD_TILE"))
+         level.changeAddingTile()
+         dprint("Changed tile!")
      
      
       (cameraX, cameraY) = updateCamera(player, level, cameraX, cameraY)

@@ -29,7 +29,22 @@ class Level:
       self.levelLineIndex = 0
       self.levelNumber = -1
       self.editMode = constant("EDIT_NONE")
-      
+      self.currentAddingTile = 'Floor'
+
+   def changeAddingTile(self):
+      s = raw_input("Tile to add:")
+      oG = ObjectGenerator()
+      oG.loadObjects()
+      try:
+         o = oG.get(s, 0, 0)
+      except:
+         print "Failed to get " + str(s)
+         return
+
+      self.currentAddingTile = s
+
+
+      self.currentAddingTile
 
    def setEditMode(self, editMode):
       self.editMode = editMode
@@ -247,7 +262,6 @@ class Level:
                endx = int(xrange[2]) + 1
                jumpx = int(xrange[3])
             else:
-               print c
                startx = int(c[1])
                # needs to be plus one because of Python's range strangeness
                endx = int(c[1]) + 1
@@ -338,12 +352,12 @@ class Level:
             self.restartLevel()
 
    def getTileToAdd(self):
-      return 'Floor'
+      return self.currentAddingTile
 
 
    def addInPlace(self, normx, normy):
       
-      line = ["Floor", str(normx), str(normy)]
+      line = [self.getTileToAdd(), str(normx), str(normy)]
       self.addLevelLine(line)
       self.restartLevel()
 
