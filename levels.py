@@ -30,6 +30,55 @@ class Level:
       self.levelNumber = -1
       self.editMode = constant("EDIT_NONE")
       self.currentAddingTile = 'Floor'
+      self.currentMessage = ""
+      self.tweakConstants = False
+      self.tweakingConstants = [ "PLAYER_ACCELERATION", "PLAYER_MAX_SPEED", 
+                                 "GRAVITY", "FRICTION", "JUMP_ACCELERATION",
+                                 "JUMP_ROTATION_MODIFIER", 
+                                 "JUMP_SPEEDUP_MODIFIER"]
+      self.tweakingConstantIndex = 0
+
+
+   def currentTweakingConstant(self):
+      return self.tweakingConstants[self.tweakingConstantIndex]
+
+   def updateTweak(self):
+      if self.tweakConstants:
+         self.setMessage(self.currentTweakingConstant() + ": " + 
+                      str(constant(self.currentTweakingConstant())))
+      else:
+         self.setMessage("")
+   
+
+   def tweakUp(self):
+      if self.tweakConstants:
+         c = constant(self.currentTweakingConstant())
+         
+         updateConstant(self.currentTweakingConstant(),
+                        c + (c*0.05))
+   def tweakDown(self):
+      if self.tweakConstants:
+         c = constant(self.currentTweakingConstant())
+         updateConstant(self.currentTweakingConstant(),
+                        c - (c*0.05))
+   def nextTweak(self):
+      self.tweakingConstantIndex += 1
+      self.tweakingConstantIndex = (
+         self.tweakingConstantIndex % len(self.tweakingConstants))
+
+   def prevTweak(self):
+      self.tweakingConstantIndex -= 1
+      self.tweakingConstantIndex = (
+         self.tweakingConstantIndex % len(self.tweakingConstants))
+
+
+
+
+   def setMessage(self, message):
+      self.currentMessage = message
+   def getMessage(self):
+      return self.currentMessage
+
 
    def changeAddingTile(self):
       s = raw_input("Tile to add:")
@@ -113,7 +162,8 @@ class Level:
             if self.collisionMap[x][y].solid:
                #print "#",
                s = constant("TILE_SIZE")
-               gH.registerRect((255, 0, 0), 1, x*s,y*s,s,s,15,"collide")
+               if constant("BOUNDING_BOXES"):
+                  gH.registerRect((255, 0, 0), 1, x*s,y*s,s,s,15,"collide")
             else:
                pass#print ".",
             
@@ -175,8 +225,8 @@ class Level:
       nearestColliderX = -1
       
       checked = 0
-      # assume that we never move further than 4 tiles in one frame
-      while (nearestColliderX==-1 and checked < 4 and  checkx >= 0
+      # assume that we never move further than 20 tiles in one frame
+      while (nearestColliderX==-1 and checked < 20 and  checkx >= 0
              and checkx < self.coordToTile(self.width)):
             
          for y in linesToCheck:
@@ -210,7 +260,7 @@ class Level:
       
       # find the horizontal lines we're intersecting
       leftTile = self.coordToTile(collider.get("x"))
-      rightTile = self.coordToTile(collider.get("right"))-1
+      rightTile = self.coordToTile(collider.get("right"))
       linesToCheck = []
       for i in range(leftTile, rightTile+1): linesToCheck.append(i)
 
@@ -222,8 +272,8 @@ class Level:
       nearestColliderY = -1
       
       checked = 0
-      # assume that we never move further than 4 tiles in one frame
-      while (nearestColliderY==-1 and checked < 4 and  checky >= 0
+      # assume that we never move further than 20 tiles in one frame
+      while (nearestColliderY==-1 and checked < 20 and  checky >= 0
              and checky < self.coordToTile(self.height)):
             
          for x in linesToCheck:
@@ -292,10 +342,16 @@ class Level:
       
       self.addLevelLine(c)
 
+   
 
    def readLevelFromFile(self, levelNumber, oG, 
                          reload=False, staticplayer=None):
       self.levelNumber = levelNumber
+      if levelNumber == 1:
+         self.tweakConstants = True
+      else:
+         self.tweakConstants = False
+         print "Set to False"
       
       
       if reload:

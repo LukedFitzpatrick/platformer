@@ -1,38 +1,31 @@
+constants = {"SCREEN_WIDTH": 640, 
+             "SCREEN_HEIGHT": 480, 
+             "MENU_BACKGROUND_COLOUR":(100, 100, 100),
+             "MENU_TITLE_COLOUR":(200, 200, 200),
+             "MENU_INACTIVE_COLOUR":(150, 150, 150),
+             "MENU_ACTIVE_COLOUR":(200, 200, 200),
+             "TILE_SIZE":16,
+             "PLAYER_ACCELERATION": 0.4,
+             "PLAYER_MAX_SPEED": 6,
+             "GRAVITY": 1.14,
+             "FRICTION": 0.2,
+             "JUMP_ACCELERATION": 17,
+             "SPIKE_EPSILON":  25,
+             "SPIKE_SPEED": 20,
+             "EDIT_DELETE": 0,
+             "EDIT_ADD": 1,
+             "EDIT_NONE": 2,
+             "EDIT_ON": True,
+             "BOUNDING_BOXES": False,
+             "LEVEL_BACKGROUND_COLOUR": (25,71,157),
+             "JUMP_ROTATION_MODIFIER": 3,
+             "JUMP_SPEEDUP_MODIFIER": 1.6
+             }
+
+def updateConstant(id, newValue):
+   global constants
+   constants[id] = newValue
 
 def constant(id):
-   if id == "SCREEN_WIDTH":
-      return 640
-   elif id == "SCREEN_HEIGHT":
-      return 480
-   elif id == "MENU_BACKGROUND_COLOUR":
-      return (100, 100, 100)
-   elif id == "MENU_TITLE_COLOUR":
-      return (200,200,200)
-   elif id == "MENU_INACTIVE_COLOUR":
-      return (150, 150, 150)
-   elif id == "MENU_ACTIVE_COLOUR":
-      return (255, 255, 255)
-   elif id == "TILE_SIZE":
-      return 16
-   elif id == "PLAYER_ACCELERATION":
-      return 0.4
-   elif id == "PLAYER_MAX_SPEED":
-      return 6
-   elif id == "GRAVITY":
-      return 0.5
-   elif id == "FRICTION":
-      return 0.2
-   elif id == "JUMP_ACCELERATION":
-      return 11
-   elif id == "SPIKE_EPSILON":
-      return 25
-   elif id == "SPIKE_SPEED":
-      return 20
-   elif id == "EDIT_DELETE":
-      return 0
-   elif id == "EDIT_ADD":
-      return 1
-   elif id == "EDIT_NONE":
-      return 2
-   elif id == "EDIT_ON":
-      return True
+   global constants
+   return constants[id]

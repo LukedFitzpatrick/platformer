@@ -13,10 +13,10 @@ class ObjectGenerator:
       self.objects = {}
       
       # Player
-      playerStand = loadFrameset("graphics/stand", 1, 1, 1)
-      playerWalk = loadFrameset("graphics/roughwalk", 1, 6, 2)
-      playerJump = loadFrameset("graphics/jump", 1, 1, 1)
-      playerFall = loadFrameset("graphics/fall", 1, 1, 1)
+      playerStand = loadFrameset("graphics/catwalk", 1, 1, 1)
+      playerWalk = loadFrameset("graphics/catwalk", 1, 4, 5)
+      playerJump = loadFrameset("graphics/catwalk", 1, 1, 1)
+      playerFall = loadFrameset("graphics/catwalk", 1, 1, 1)
       playerGraphic = Graphic([playerStand,playerWalk, playerJump,
                                playerFall], 10, animating=True)
       playerPlayer = Player()
@@ -32,6 +32,7 @@ class ObjectGenerator:
       floorObject = GameObject("Floor", -1, -1,solid=True,
                                graphic=floorGraphic)
       self.objects["Floor"] = floorObject
+
 
 
       # Falling spike

@@ -33,3 +33,12 @@ def keyBinding(keyid):
       return pygame.K_a
    elif keyid == "JUMP":
       return pygame.K_w
+   elif keyid == "NEXT_TWEAK":
+      return pygame.K_RIGHT
+   elif keyid == "PREV_TWEAK":
+      return pygame.K_LEFT
+   elif keyid == "TWEAK_UP":
+      return pygame.K_UP
+   elif keyid == "TWEAK_DOWN":
+      return pygame.K_DOWN
+   

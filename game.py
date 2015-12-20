@@ -7,6 +7,11 @@ from levels import *
 import sys
 
 
+def displayMessage(message, gH): 
+   f = pygame.font.Font("font/yoster.ttf", 20)
+   gH.registerText(message, f, (255, 255, 255), 10, 10, 10, "message", True)
+   
+
 def updateCamera(tracking, level, cameraX, cameraY):
    
    newcameraX = tracking.x - int(constant("SCREEN_WIDTH")/2)
@@ -52,7 +57,7 @@ def playLevel(level, screen, FPS=60):
          elif event.type == pygame.KEYUP:
             if event.key in keysdown:
                keysdown.remove(event.key)
-         elif event.type == pygame.MOUSEBUTTONUP:
+         elif event.type == pygame.MOUSEBUTTONDOWN:
             pos = pygame.mouse.get_pos()
             level.dealWithClick(pos, cameraX, cameraY)
 
@@ -71,8 +76,6 @@ def playLevel(level, screen, FPS=60):
          keysdown.remove(keyBinding("PREVIOUS_LEVEL"))
          dprint("Previous level!")
          return -1
-
-
       if keyBinding("RELOAD_LEVEL") in keysdown:
          keysdown.remove(keyBinding("RELOAD_LEVEL"))
          level.restartLevel()
@@ -108,7 +111,22 @@ def playLevel(level, screen, FPS=60):
          keysdown.remove(keyBinding("CHANGE_ADD_TILE"))
          level.changeAddingTile()
          dprint("Changed tile!")
+
+      if keyBinding("NEXT_TWEAK") in keysdown:
+         keysdown.remove(keyBinding("NEXT_TWEAK"))
+         level.nextTweak()
+
+      if keyBinding("PREV_TWEAK") in keysdown:
+         keysdown.remove(keyBinding("PREV_TWEAK"))
+         level.prevTweak()
+
+      if keyBinding("TWEAK_UP") in keysdown:
+         level.tweakUp()
      
+      if keyBinding("TWEAK_DOWN") in keysdown:
+         level.tweakDown()
+
+         
      
       (cameraX, cameraY) = updateCamera(player, level, cameraX, cameraY)
 
@@ -126,4 +144,8 @@ def playLevel(level, screen, FPS=60):
 
       level.displayCollisionMap(gH)
       
+      level.updateTweak()
+
+      
+      displayMessage(level.getMessage(), gH)
       gH.displayAll(screen, cameraX, cameraY)

@@ -89,6 +89,7 @@ class Graphic:
       self.height = self.frameSets[self.frameSetIndex][self.frameIndex].get_height()
       self.immovable = immovable
       self.flip = False
+      self.rotateAngle = 0
 
    def update(self, gH):
       # possibly update the animation state here etc
@@ -109,6 +110,9 @@ class Graphic:
       else:
          i = self.frameSets[self.frameSetIndex][self.frameIndex]
       
+
+
+      i = pygame.transform.rotate(i, self.rotateAngle)
       gH.registerImage(i, self.parent.x, self.parent.y, 
                     self.priority, self.parent.debugName, self.immovable)
       
@@ -142,6 +146,16 @@ class Graphic:
       else:
          self.flip = False
 
+
+   def setRotate(self, angle):
+      self.rotateAngle = angle
+
+   def changeRotate(self, deltaangle):
+      self.rotateAngle += deltaangle
+
+   def getRotate(self):
+      return self.rotateAngle
+
 class Text:
    def __init__(self, text, font, colour, priority, xoffset=0, yoffset=0, immovable=False):
       self.text = text
@@ -172,26 +186,30 @@ class Player:
       self.mover.friction()
 
       if keyBinding("LEFT") in keys:
-         self.mover.left()
+         self.mover.left(constant("PLAYER_ACCELERATION"))
       if keyBinding("RIGHT") in keys:
-         self.mover.right()
+         self.mover.right(constant("PLAYER_ACCELERATION"))
       if keyBinding("JUMP") in keys:
          self.mover.jump()
+         keys.remove(keyBinding("JUMP"))
       
-
       self.collider.setDimensions(self.parent.x, self.parent.y,
             self.parent.graphic.width, self.parent.graphic.height)
 
-      
-      (collidedx, deltax) = level.calculateXCollision(self.collider, 
-                                         self.mover.getDelta("x"))
       (collidedy, deltay) = level.calculateYCollision(self.collider, 
                                          self.mover.getDelta("y"))
-      
-      if collidedx:
-         self.mover.xCollision()
+
       if collidedy:
          self.mover.yCollision()
+
+
+
+      (collidedx, deltax) = level.calculateXCollision(self.collider, 
+                                         self.mover.getDelta("x"))
+
+    
+      if collidedx:
+         self.mover.xCollision()
 
 
       # flipping the graphic
@@ -204,17 +222,30 @@ class Player:
       # moving in x
       if math.fabs(deltax) > 0:
          self.parent.graphic.continueOrStartFrameSet(1)
+
       # still in x
       else:
          self.parent.graphic.continueOrStartFrameSet(0)
 
+
       # falling (takes precedence over walk animation
       if deltay > 0:
          self.parent.graphic.continueOrStartFrameSet(3)
+         if self.parent.graphic.getRotate() > 0:
+            self.parent.graphic.changeRotate(-1)
+         elif self.parent.graphic.getRotate() < 0:
+            self.parent.graphic.changeRotate(1)
       #rising:
       elif deltay < 0 or not self.mover.onGround:
          self.parent.graphic.continueOrStartFrameSet(2)
+         if deltax > 0:
+            self.parent.graphic.setRotate(deltax*constant("JUMP_ROTATION_MODIFIER"))
+         elif deltax < 0:
+            self.parent.graphic.setRotate(deltax*constant("JUMP_ROTATION_MODIFIER"))
 
+         deltax = deltax * constant("JUMP_SPEEDUP_MODIFIER")
+      else:
+         self.parent.graphic.setRotate(0)
 
       self.parent.x += deltax
       self.parent.y += deltay
@@ -314,7 +345,10 @@ class Mover:
          self.yv -= constant("JUMP_ACCELERATION")
          self.onGround = False
 
-   def right(self, v = constant("PLAYER_ACCELERATION")):
+   def right(self, v):
+      # watch out for this, in here so live tweaking works
+      self.maxSpeed = constant("PLAYER_MAX_SPEED")
+
       if self.xv < 0:
          self.xv = 0
 
@@ -323,7 +357,9 @@ class Mover:
          if self.xv > self.maxSpeed:
             self.xv = self.maxSpeed
    
-   def left(self, v=constant("PLAYER_ACCELERATION")):
+   def left(self, v):
+      # watch out for this, in here so live tweaking works
+      self.maxSpeed = constant("PLAYER_MAX_SPEED")
       if self.xv > 0:
          self.xv = 0
          
@@ -379,26 +415,26 @@ class Collider:
 
    def get(self, what):
       if what == "x":
-         return self.x
+         return int(self.x)
       if what == "y":
-         return self.y
+         return int(self.y)
       if what == "width":
          return self.width
       if what == "height":
          return self.height
       if what == "right":
-         return self.x+(self.width)
+         return int(self.x)+(self.width) - 1
       if what == "bottom":
-         return self.y+self.height
+         return int(self.y)+self.height
 
    
 
    def leadingEdge(self, direction):
       if direction == "LEFT":
-         return self.x
+         return int(self.x)
       elif direction == "RIGHT":
-         return self.x + self.width
+         return int(self.x) + self.width
       elif direction == "UP":
-         return self.y
+         return int(self.y)
       elif direction == "DOWN":
-         return self.y+self.height
+         return int(self.y)+self.height
