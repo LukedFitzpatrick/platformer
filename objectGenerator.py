@@ -34,6 +34,45 @@ class ObjectGenerator:
       self.objects["Floor"] = floorObject
 
 
+      # castle stuff
+      floorFrames = loadFrameset("graphics/level1floortop", 1, 1, 1)
+      floorGraphic = Graphic([floorFrames], 10, animating=False)
+      floorObject = GameObject("Level1FloorTop", -1, -1,solid=True,
+                               graphic=floorGraphic)
+      self.objects["Level1FloorTop"] = floorObject
+
+      floorFrames = loadFrameset("graphics/level1floorbottom", 1, 1, 1)
+      floorGraphic = Graphic([floorFrames], 10, animating=False)
+      floorObject = GameObject("Level1FloorBottom", -1, -1,solid=True,
+                               graphic=floorGraphic)
+      self.objects["Level1FloorBottom"] = floorObject
+
+      floorFrames = loadFrameset("graphics/level1floordecoration", 1, 1, 1)
+      floorGraphic = Graphic([floorFrames], 11, animating=False)
+      floorObject = GameObject("Level1FloorDecoration", -1, -1,solid=False,
+                               graphic=floorGraphic)
+      self.objects["Level1FloorDecoration"] = floorObject
+      
+      floorFrames = loadFrameset("graphics/level1wall", 1, 1, 1)
+      floorGraphic = Graphic([floorFrames], 2, animating=False)
+      floorObject = GameObject("Level1Wall", -1, -1,solid=False,
+                               graphic=floorGraphic)
+      self.objects["Level1Wall"] = floorObject
+
+      floorFrames = loadFrameset("graphics/level1window", 1, 1, 1)
+      floorGraphic = Graphic([floorFrames], 2, animating=False)
+      floorObject = GameObject("Level1Window", -1, -1,solid=False,
+                               graphic=floorGraphic)
+      self.objects["Level1Window"] = floorObject
+      
+      floorFrames = loadFrameset("graphics/level1bigwindow", 1, 1, 1)
+      floorGraphic = Graphic([floorFrames], 2, animating=False)
+      floorObject = GameObject("Level1BigWindow", -1, -1,solid=False,
+                               graphic=floorGraphic)
+      self.objects["Level1BigWindow"] = floorObject
+
+
+
 
       # Falling spike
       fSpikeImage = loadFrameset("graphics/fallingspike", 1, 1, 1)

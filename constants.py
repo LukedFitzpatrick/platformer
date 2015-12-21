@@ -17,7 +17,7 @@ constants = {"SCREEN_WIDTH": 640,
              "EDIT_NONE": 2,
              "EDIT_ON": True,
              "BOUNDING_BOXES": False,
-             "LEVEL_BACKGROUND_COLOUR": (25,71,157),
+             "LEVEL_BACKGROUND_COLOUR": (174,202,224),
              "JUMP_ROTATION_MODIFIER": 3,
              "JUMP_SPEEDUP_MODIFIER": 1.6
              }
